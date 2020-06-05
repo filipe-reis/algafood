@@ -3,7 +3,6 @@ package com.algworks.algafood.domain.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.algworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algworks.algafood.domain.model.Cidade;
 import com.algworks.algafood.domain.model.Estado;
@@ -21,19 +20,16 @@ public class CadastroCidadeService {
 	
 	public Cidade adicionar(Cidade cidade) {
 		Long estadoId = cidade.getEstado().getId();
-		Estado estado = estadoRepository.buscar(estadoId);
-		
-		if(estado == null) {
-			throw new EntidadeNaoEncontradaException
-				(String.format("Estado não existe para o id %d", estadoId));
-		}
+		Estado estado = estadoRepository.findById(estadoId)
+				.orElseThrow(() -> new EntidadeNaoEncontradaException
+						(String.format("Estado não existe para o id %d", estadoId)));
 		
 		cidade.setEstado(estado);
-		return cidadeRepository.salvar(cidade);
+		return cidadeRepository.save(cidade);
 		
 	}
 	
 	public void remover(Long cidadeId) {
-		cidadeRepository.remover(cidadeId);
+		cidadeRepository.deleteById(cidadeId);
 	}
 }
